@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Отчёты{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold mb-4">
+    <i class="bi bi-file-earmark-text"></i> Формирование отчётов
+</h4>
+
+<div class="row g-3">
+
+    {% for key, value in report_types.items %}
+    {% with name=value.0 needs_dates=value.2 %}
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">
+                <i class="bi bi-file-earmark-word text-primary"></i> {{ name }}
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'report_generate' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="report_type" value="{{ key }}">
+
+                    {% if needs_dates %}
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Период с</label>
+                            <input type="date" name="date_from" class="form-control form-control-sm"
+                                   value="{{ default_from }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">по</label>
+                            <input type="date" name="date_to" class="form-control form-control-sm"
+                                   value="{{ default_to }}" required>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted small mb-3">
+                        Отчёт формируется по всем данным без фильтра по дате.
+                    </p>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-dark btn-sm">
+                        <i class="bi bi-download"></i> Скачать .docx
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+
+</div>
+{% endblock %}

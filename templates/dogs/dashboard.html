@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная — Кинологическая служба{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold mb-4">
+    <i class="bi bi-speedometer2"></i> Панель управления
+</h4>
+
+<!-- Карточки статистики -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Всего собак</p>
+                        <h3 class="fw-bold">{{ total_dogs }}</h3>
+                    </div>
+                    <i class="bi bi-award text-secondary" style="font-size:2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm" style="border-left-color: #198754;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">В работе</p>
+                        <h3 class="fw-bold text-success">{{ active_dogs }}</h3>
+                    </div>
+                    <i class="bi bi-check-circle text-success" style="font-size:2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm" style="border-left-color: #0d6efd;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Сотрудников</p>
+                        <h3 class="fw-bold text-primary">{{ total_employees }}</h3>
+                    </div>
+                    <i class="bi bi-people text-primary" style="font-size:2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Последние тренировки -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">
+                <i class="bi bi-calendar-check"></i> Последние тренировки
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Дата</th><th>Собака</th><th>Навык</th><th>Оценка</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in recent_trainings %}
+                        <tr>
+                            <td>{{ t.datetime|date:"d.m.Y" }}</td>
+                            <td>{{ t.dog.name }}</td>
+                            <td>{{ t.skill.name }}</td>
+                            <td>
+                                {% if t.score %}
+                                <span class="badge bg-secondary">{{ t.score }}</span>
+                                {% else %}—{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-muted text-center py-3">Тренировок пока нет</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Предстоящие ветеринарные процедуры -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">
+                <i class="bi bi-heart-pulse"></i> Предстоящие процедуры
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Дата</th><th>Собака</th><th>Процедура</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in upcoming_vet %}
+                        <tr>
+                            <td>{{ v.next_procedure_date|date:"d.m.Y" }}</td>
+                            <td>{{ v.dog.name }}</td>
+                            <td>{{ v.procedure_type.name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-muted text-center py-3">Нет запланированных процедур</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

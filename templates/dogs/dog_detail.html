@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load role_tags static %}
+{% block title %}{{ dog.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0">
+        <i class="bi bi-award"></i> {{ dog.name }}
+        <span class="badge bg-secondary ms-2">{{ dog.status }}</span>
+    </h4>
+    <div>
+        {% if user.is_superuser or user_roles|has_role:"Руководитель" %}
+        <a href="{% url 'dog_edit' dog.pk %}" class="btn btn-sm btn-outline-dark">
+            <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        {% endif %}
+        <a href="{% url 'dog_list' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Назад
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Левая колонка: фото и основные данные -->
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                {% if dog.photo %}
+                <img src="{{ dog.photo.url }}" class="dog-photo mb-3" style="width:150px;height:150px;" alt="{{ dog.name }}">
+                {% else %}
+                <i class="bi bi-image text-muted mb-3" style="font-size:5rem;display:block;"></i>
+                {% endif %}
+                <h5 class="fw-bold">{{ dog.name }}</h5>
+                <p class="text-muted mb-1">{{ dog.breed }}</p>
+                <span class="badge bg-secondary">{{ dog.get_gender_display }}</span>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Инв. номер</span>
+                    <strong>{{ dog.inventory_number }}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Дата рождения</span>
+                    <strong>{{ dog.birth_date|date:"d.m.Y"|default:"—" }}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Поступил</span>
+                    <strong>{{ dog.arrival_date|date:"d.m.Y" }}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Кинолог</span>
+                    <strong>{{ dog.main_kennel|default:"—" }}</strong>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Специализации -->
+        <div class="card shadow-sm mt-3">
+            <div class="card-header fw-semibold">Специализации</div>
+            <div class="card-body">
+                {% for link in specializations %}
+                <span class="badge bg-dark me-1 mb-1">{{ link.specialization.name }}</span>
+                {% empty %}
+                <span class="text-muted small">Не назначены</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Правая колонка: вкладки с историей -->
+    <div class="col-md-9">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <!-- Вкладки Bootstrap -->
+                <ul class="nav nav-tabs card-header-tabs" id="dogTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#trainings">
+                            <i class="bi bi-calendar-check"></i> Тренировки ({{ trainings|length }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#vet">
+                            <i class="bi bi-heart-pulse"></i> Ветеринария ({{ vet_records|length }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#events">
+                            <i class="bi bi-geo-alt"></i> Мероприятия ({{ events|length }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#equipment">
+                            <i class="bi bi-bag"></i> Снаряжение
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body tab-content p-0">
+
+                <!-- Вкладка: Тренировки -->
+                <div class="tab-pane fade show active p-0" id="trainings">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>Дата</th><th>Навык</th><th>Кинолог</th><th>Оценка</th><th>Погода</th></tr></thead>
+                        <tbody>
+                            {% for t in trainings %}
+                            <tr>
+                                <td>{{ t.datetime|date:"d.m.Y H:i" }}</td>
+                                <td>{{ t.skill.name }}</td>
+                                <td>{{ t.kennel.full_name|default:"—" }}</td>
+                                <td>{% if t.score %}<span class="badge bg-secondary">{{ t.score }}</span>{% else %}—{% endif %}</td>
+                                <td class="text-muted small">{{ t.weather_conditions|default:"—" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center text-muted py-3">Тренировок нет</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Вкладка: Ветеринария -->
+                <div class="tab-pane fade p-0" id="vet">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>Дата</th><th>Процедура</th><th>Ветеринар</th><th>Следующая</th><th>Плановая</th></tr></thead>
+                        <tbody>
+                            {% for v in vet_records %}
+                            <tr>
+                                <td>{{ v.procedure_date|date:"d.m.Y" }}</td>
+                                <td>{{ v.procedure_type.name }}</td>
+                                <td>{{ v.veterinarian.full_name|default:"—" }}</td>
+                                <td>{{ v.next_procedure_date|date:"d.m.Y"|default:"—" }}</td>
+                                <td>{% if v.is_routine %}<i class="bi bi-check-circle text-success"></i>{% else %}<i class="bi bi-x-circle text-danger"></i>{% endif %}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center text-muted py-3">Записей нет</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Вкладка: Мероприятия -->
+                <div class="tab-pane fade p-0" id="events">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>Дата</th><th>Тип</th><th>Место</th><th>Кинолог</th></tr></thead>
+                        <tbody>
+                            {% for e in events %}
+                            <tr>
+                                <td>{{ e.datetime|date:"d.m.Y H:i" }}</td>
+                                <td>{{ e.event_type.name }}</td>
+                                <td>{{ e.location }}</td>
+                                <td>{{ e.kennel.full_name|default:"—" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted py-3">Мероприятий нет</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Вкладка: Снаряжение -->
+                <div class="tab-pane fade p-0" id="equipment">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>Тип</th><th>Выдано</th><th>Состояние</th><th>Примечания</th></tr></thead>
+                        <tbody>
+                            {% for eq in equipment %}
+                            <tr>
+                                <td>{{ eq.equipment_type.name }}</td>
+                                <td>{{ eq.issue_date|date:"d.m.Y" }}</td>
+                                <td>{{ eq.current_condition }}</td>
+                                <td class="text-muted small">{{ eq.notes|default:"—" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted py-3">Снаряжение не выдано</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

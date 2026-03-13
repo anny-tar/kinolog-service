@@ -1,0 +1,138 @@
+{% load role_tags static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Кинологическая служба{% endblock %}</title>
+
+    <!-- Bootstrap 5 — подключаем из CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body class="bg-light">
+
+<!-- ======================================================
+     НАВИГАЦИОННАЯ ПАНЕЛЬ
+     Меню отображается в зависимости от роли пользователя
+     ====================================================== -->
+{% if user.is_authenticated %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+
+        <!-- Логотип / название -->
+        <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">
+            <i class="bi bi-shield-fill"></i> КС МВД
+        </a>
+
+        <!-- Кнопка для мобильных устройств -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav me-auto">
+
+                <!-- Дашборд — виден всем -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dashboard' %}">
+                        <i class="bi bi-speedometer2"></i> Главная
+                    </a>
+                </li>
+
+                <!-- Раздел Кинолога — виден кинологам и руководителям -->
+                {% if user.is_superuser or user_roles|has_role:"Кинолог,Руководитель" %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-award"></i> Кинология
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'dog_list' %}">
+                            <i class="bi bi-list-ul"></i> Служебные собаки
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'training_list' %}">
+                            <i class="bi bi-calendar-check"></i> Тренировки
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'event_list' %}">
+                            <i class="bi bi-geo-alt"></i> Мероприятия
+                        </a></li>
+                    </ul>
+                </li>
+                {% endif %}
+
+                <!-- Ветеринарный раздел -->
+                {% if user.is_superuser or user_roles|has_role:"Ветеринар,Руководитель" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vet_list' %}">
+                        <i class="bi bi-heart-pulse"></i> Ветеринария
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- Раздел руководителя -->
+                {% if user.is_superuser or user_roles|has_role:"Руководитель" %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-bar-chart"></i> Руководство
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'employee_list' %}">
+                            <i class="bi bi-people"></i> Сотрудники
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'report_list' %}">
+                            <i class="bi bi-file-earmark-text"></i> Отчёты
+                        </a></li>
+                    </ul>
+                </li>
+                {% endif %}
+
+            </ul>
+
+            <!-- Правая часть меню — имя пользователя и выход -->
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{ user.get_full_name|default:user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">
+                            <i class="bi bi-box-arrow-right"></i> Выйти
+                        </a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endif %}
+
+<!-- ======================================================
+     ОСНОВНОЙ КОНТЕНТ СТРАНИЦЫ
+     ====================================================== -->
+<div class="container-fluid py-4">
+
+    <!-- Блок для flash-сообщений (успех, ошибка и т.д.) -->
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Контент каждой страницы -->
+    {% block content %}
+    {% endblock %}
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

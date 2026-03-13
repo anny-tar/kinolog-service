@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Служебные собаки{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-award"></i> Служебные собаки</h4>
+    <a href="/admin/dogs/servicedog/add/" class="btn btn-dark btn-sm">
+        <i class="bi bi-plus-lg"></i> Добавить
+    </a>
+</div>
+
+<!-- Строка фильтров -->
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="search" class="form-control" placeholder="Поиск по кличке или номеру..." value="{{ search }}">
+    </div>
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">Все статусы</option>
+            {% for s in statuses %}
+            <option value="{{ s.id }}" {% if status_filter == s.id|stringformat:"s" %}selected{% endif %}>
+                {{ s.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-dark w-100">
+            <i class="bi bi-funnel"></i> Найти
+        </button>
+    </div>
+</form>
+
+<!-- Таблица собак -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Фото</th>
+                    <th>Кличка</th>
+                    <th>Инв. номер</th>
+                    <th>Порода</th>
+                    <th>Статус</th>
+                    <th>Кинолог</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dog in dogs %}
+                <tr>
+                    <td>
+                        {% if dog.photo %}
+                        <img src="{{ dog.photo.url }}" class="dog-photo" style="width:45px;height:45px;" alt="">
+                        {% else %}
+                        <i class="bi bi-image text-muted" style="font-size:1.5rem;"></i>
+                        {% endif %}
+                    </td>
+                    <td class="fw-semibold">{{ dog.name }}</td>
+                    <td class="text-muted">{{ dog.inventory_number }}</td>
+                    <td>{{ dog.breed }}</td>
+                    <td>
+                        <span class="badge bg-secondary badge-status">{{ dog.status }}</span>
+                    </td>
+                    <td>{{ dog.main_kennel|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'dog_detail' dog.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">Собаки не найдены</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
