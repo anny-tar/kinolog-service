@@ -15,27 +15,26 @@ def role_required(*role_names):
     Пускает на страницу только пользователей с указанными ролями.
     """
     def decorator(view_func):
-        @wraps(view_func)
         def wrapper(request, *args, **kwargs):
-
-            # Если пользователь не вошёл — на страницу входа
             if not request.user.is_authenticated:
                 return redirect('login')
 
-            # Суперпользователь (администратор) проходит всегда
             if request.user.is_superuser:
                 return view_func(request, *args, **kwargs)
 
-            # Проверяем есть ли у пользователя нужная роль
             try:
-                employee = request.user.employee  # связанный сотрудник
-                user_roles = employee.roles.values_list('name', flat=True)
+                employee = request.user.employee
+                user_roles = list(employee.roles.values_list('name', flat=True))
+                # print("=== DECORATOR DEBUG ===")
+                # print("User:", request.user.username)
+                # print("Roles in DB:", user_roles)
+                # print("Required roles:", role_names)
+                # print("Match:", any(role in user_roles for role in role_names))
                 if any(role in user_roles for role in role_names):
                     return view_func(request, *args, **kwargs)
-            except Exception:
-                pass
+            except Exception as e:
+                print("EXCEPTION:", e)
 
-            # Роли нет — показываем ошибку и возвращаем на дашборд
             messages.error(request, 'У вас нет доступа к этому разделу.')
             return redirect('login')
 

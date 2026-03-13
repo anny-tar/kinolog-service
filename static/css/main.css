@@ -23,3 +23,16 @@ body { font-size: 0.92rem; }
 
 /* Бейджи статусов */
 .badge-status { font-size: 0.8rem; padding: 5px 10px; }
+
+/* ============================================================
+   Скрываем стандартный рендер ClearableFileInput от Django —
+   ссылку на текущий файл, стандартный чекбокс и текст "Clear:"
+   Наш собственный интерфейс отображается вместо него.
+   ============================================================ */
+
+.clearable-hide a,
+.clearable-hide br,
+.clearable-hide input[type="checkbox"],
+.clearable-hide label:not(.form-label) {
+    display: none !important;
+}

@@ -26,7 +26,6 @@ class ServiceDogForm(forms.ModelForm):
             'inventory_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Инвентарный номер'}),
             'breed': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Порода'}),
             'gender': forms.Select(attrs={'class': 'form-select'}),
-            # format='%Y-%m-%d' — обязателен чтобы при редактировании дата подставлялась в поле
             'birth_date': forms.DateInput(
                 attrs={'class': 'form-control', 'type': 'date'},
                 format='%Y-%m-%d',
@@ -39,7 +38,7 @@ class ServiceDogForm(forms.ModelForm):
             'main_kennel': forms.Select(attrs={'class': 'form-select'}),
             'color_marks': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'origin_story': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'photo': forms.FileInput(attrs={'class': 'form-control'}),
+            'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -62,7 +61,6 @@ class TrainingForm(forms.ModelForm):
             'dog': forms.Select(attrs={'class': 'form-select'}),
             'kennel': forms.Select(attrs={'class': 'form-select'}),
             'skill': forms.Select(attrs={'class': 'form-select'}),
-            # format='%Y-%m-%dT%H:%M' — нужен для datetime-local при редактировании
             'datetime': forms.DateTimeInput(
                 attrs={'class': 'form-control', 'type': 'datetime-local'},
                 format='%Y-%m-%dT%H:%M',
@@ -100,7 +98,7 @@ class ServiceEventForm(forms.ModelForm):
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Адрес или описание места'}),
             'duration': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: 02:00:00'}),
             'results': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'documents': forms.FileInput(attrs={'class': 'form-control'}),
+            'documents': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -158,7 +156,7 @@ class EmployeeForm(forms.ModelForm):
         label='Пароль',
         required=False,
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Оставьте пустым чтобы не менять'}),
-        help_text='При редактировании оставьте пустым если не хотите менять пароль',
+        help_text='При редактировании оставьте пустым, если не хотите менять пароль',
     )
     roles = forms.ModelMultipleChoiceField(
         label='Роли',
@@ -189,7 +187,8 @@ class EmployeeForm(forms.ModelForm):
                 format='%Y-%m-%d',
             ),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'photo': forms.FileInput(attrs={'class': 'form-control'}),
+            # ClearableFileInput — обрабатывает удаление файла через photo-clear чекбокс
+            'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -236,6 +235,9 @@ class EmployeeForm(forms.ModelForm):
 
         if commit:
             employee.save()
+            # save_m2m() вызывает финальную обработку всех полей включая
+            # ClearableFileInput — без этого удаление файла не применяется
+            self.save_m2m()
             employee.roles.set(roles)
 
         return employee

@@ -45,7 +45,33 @@
                                 {{ field.label }}
                                 {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                             </label>
-                            {{ field }}
+
+                            {% if field.name == 'photo' %}
+                                {% if form.instance.photo %}
+                                <div class="mb-2 d-flex align-items-center gap-3">
+                                    <img src="{{ form.instance.photo.url }}"
+                                         class="rounded-circle"
+                                         style="width:70px;height:70px;object-fit:cover;"
+                                         alt="Текущее фото">
+                                    <div>
+                                        <p class="mb-1 small text-muted">Текущее фото</p>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox"
+                                                   name="{{ form.photo.html_name }}-clear"
+                                                   id="photo-clear-custom">
+                                            <label class="form-check-label text-danger small" for="photo-clear-custom">
+                                                <i class="bi bi-trash"></i> Удалить фото
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <label class="form-label small text-muted">Загрузить новое фото (необязательно):</label>
+                                {% endif %}
+                                <div class="clearable-hide">{{ field }}</div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+
                             {% if field.errors %}
                                 <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
                             {% endif %}

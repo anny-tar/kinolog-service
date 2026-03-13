@@ -225,6 +225,7 @@ def vet_add(request):
 
 @login_required(login_url='login')
 @role_required('Руководитель')
+
 def employee_list(request):
     employees = Employee.objects.prefetch_related('roles').filter(is_active=True)
     return render(request, 'dogs/employee_list.html', {'employees': employees})
