@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load role_tags static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">
+                <i class="bi bi-person-badge"></i> {{ title }}
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <h6 class="text-muted mb-3 mt-1">Учётная запись</h6>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            {{ form.username.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.password.label }}</label>
+                        {{ form.password }}
+                        <div class="form-text">{{ form.password.help_text }}</div>
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <hr>
+                    <h6 class="text-muted mb-3">Личные данные</h6>
+
+                    {% for field in form %}
+                        {% if field.name != 'username' and field.name != 'password' and field.name != 'roles' and field.name != 'is_active' %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                {{ field.label }}
+                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <hr>
+                    <h6 class="text-muted mb-3">Роли и статус</h6>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            {{ form.roles.label }} <span class="text-danger">*</span>
+                        </label>
+                        <div class="d-flex gap-3 flex-wrap">
+                            {% for checkbox in form.roles %}
+                            <div class="form-check">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.roles.errors %}
+                            <div class="text-danger small mt-1">{{ form.roles.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">
+                            {{ form.is_active.label }}
+                        </label>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-dark">
+                            <i class="bi bi-check-lg"></i> Сохранить
+                        </button>
+                        <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary">
+                            Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

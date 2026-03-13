@@ -229,6 +229,80 @@ def employee_list(request):
     employees = Employee.objects.prefetch_related('roles').filter(is_active=True)
     return render(request, 'dogs/employee_list.html', {'employees': employees})
 
+@login_required(login_url='login')
+@role_required('Кинолог', 'Руководитель')
+def training_edit(request, pk):
+    training = get_object_or_404(Training, pk=pk)
+    form = TrainingForm(request.POST or None, instance=training, user=request.user)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Тренировка успешно обновлена!')
+        return redirect('training_list')
+    return render(request, 'dogs/training_form.html', {
+        'form': form,
+        'title': f'Редактировать тренировку: {training.dog.name}',
+    })
+
+
+@login_required(login_url='login')
+@role_required('Кинолог', 'Руководитель')
+def event_edit(request, pk):
+    event = get_object_or_404(ServiceEvent, pk=pk)
+    form = ServiceEventForm(request.POST or None, request.FILES or None, instance=event)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Мероприятие успешно обновлено!')
+        return redirect('event_list')
+    return render(request, 'dogs/event_form.html', {
+        'form': form,
+        'title': f'Редактировать мероприятие: {event.dog.name}',
+    })
+
+
+@login_required(login_url='login')
+@role_required('Ветеринар', 'Руководитель')
+def vet_edit(request, pk):
+    record = get_object_or_404(VeterinaryRecord, pk=pk)
+    form = VeterinaryRecordForm(request.POST or None, instance=record)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Ветеринарная запись обновлена!')
+        return redirect('vet_list')
+    return render(request, 'dogs/vet_form.html', {
+        'form': form,
+        'title': f'Редактировать запись: {record.dog.name}',
+    })
+
+
+@login_required(login_url='login')
+@role_required('Руководитель')
+def employee_add(request):
+    from .forms import EmployeeForm
+    form = EmployeeForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        employee = form.save()
+        messages.success(request, f'Сотрудник «{employee.full_name}» успешно добавлен!')
+        return redirect('employee_list')
+    return render(request, 'dogs/employee_form.html', {
+        'form': form,
+        'title': 'Добавить сотрудника',
+    })
+
+
+@login_required(login_url='login')
+@role_required('Руководитель')
+def employee_edit(request, pk):
+    from .forms import EmployeeForm
+    employee = get_object_or_404(Employee, pk=pk)
+    form = EmployeeForm(request.POST or None, request.FILES or None, instance=employee)
+    if form.is_valid():
+        form.save()
+        messages.success(request, f'Данные сотрудника «{employee.full_name}» обновлены!')
+        return redirect('employee_list')
+    return render(request, 'dogs/employee_form.html', {
+        'form': form,
+        'title': f'Редактировать: {employee.full_name}',
+    })
 
 # ==============================================================================
 # ОТЧЁТЫ

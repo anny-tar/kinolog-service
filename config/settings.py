@@ -127,6 +127,8 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
 # Название сайта в шапке админки
 ADMIN_SITE_HEADER = 'Кинологическая служба ГУ МВД'
 ADMIN_SITE_TITLE = 'Управление системой'
