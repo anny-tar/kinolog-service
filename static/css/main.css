@@ -1,0 +1,25 @@
+/* Боковая панель и общие стили */
+body { font-size: 0.92rem; }
+
+.navbar-brand { letter-spacing: 1px; }
+
+/* Карточки статистики на дашборде */
+.stat-card {
+    border-left: 4px solid #343a40;
+    transition: transform 0.2s;
+}
+.stat-card:hover { transform: translateY(-3px); }
+
+/* Таблицы */
+.table th { background-color: #f8f9fa; font-weight: 600; }
+.table-hover tbody tr:hover { background-color: #f0f4ff; }
+
+/* Фото собаки и сотрудника */
+.dog-photo {
+    width: 120px; height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Бейджи статусов */
+.badge-status { font-size: 0.8rem; padding: 5px 10px; }
