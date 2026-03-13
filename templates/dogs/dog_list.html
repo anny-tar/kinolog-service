@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
-
+{% load role_tags static %}
 {% block title %}Служебные собаки{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="fw-bold mb-0"><i class="bi bi-award"></i> Служебные собаки</h4>
-    <a href="/admin/dogs/servicedog/add/" class="btn btn-dark btn-sm">
+    {% if user.is_superuser or user_roles|has_role:"Руководитель" %}
+    <a href="{% url 'dog_add' %}" class="btn btn-dark btn-sm">
         <i class="bi bi-plus-lg"></i> Добавить
     </a>
+    {% endif %}
 </div>
 
-<!-- Строка фильтров -->
 <form method="get" class="row g-2 mb-3">
     <div class="col-md-4">
         <input type="text" name="search" class="form-control" placeholder="Поиск по кличке или номеру..." value="{{ search }}">
@@ -32,7 +33,6 @@
     </div>
 </form>
 
-<!-- Таблица собак -->
 <div class="card shadow-sm">
     <div class="card-body p-0">
         <table class="table table-hover mb-0">
@@ -60,14 +60,19 @@
                     <td class="fw-semibold">{{ dog.name }}</td>
                     <td class="text-muted">{{ dog.inventory_number }}</td>
                     <td>{{ dog.breed }}</td>
-                    <td>
-                        <span class="badge bg-secondary badge-status">{{ dog.status }}</span>
-                    </td>
+                    <td><span class="badge bg-secondary badge-status">{{ dog.status }}</span></td>
                     <td>{{ dog.main_kennel|default:"—" }}</td>
-                    <td>
-                        <a href="{% url 'dog_detail' dog.pk %}" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-eye"></i>
-                        </a>
+                    <td> 
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'dog_detail' dog.pk %}" class="btn btn-sm btn-outline-secondary" title="Просмотр">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if user.is_superuser or user_roles|has_role:"Руководитель" %}
+                            <a href="{% url 'dog_edit' dog.pk %}" class="btn btn-sm btn-outline-secondary" title="Редактировать">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% empty %}

@@ -37,7 +37,7 @@ def role_required(*role_names):
 
             # Роли нет — показываем ошибку и возвращаем на дашборд
             messages.error(request, 'У вас нет доступа к этому разделу.')
-            return redirect('dashboard')
+            return redirect('login')
 
         return wrapper
     return decorator
