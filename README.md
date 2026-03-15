@@ -1,4 +1,4 @@
-# 🐕 Кинологическая служба МВД — Веб-сервис
+# 🐕 Кинологическая служба — Веб-сервис
 
 [![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)](https://python.org)
 [![Django](https://img.shields.io/badge/Django-4.x-green?logo=django)](https://djangoproject.com)
@@ -6,7 +6,7 @@
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple?logo=bootstrap)](https://getbootstrap.com)
 
 Веб-сервис для автоматизации учётной и отчётной деятельности  
-**Центра кинологической службы ГУ МВД России по Самарской области**.
+**Центра кинологической службы**.
 
 
 ---
